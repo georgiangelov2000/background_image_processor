@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pika
+python-multipart
+psutil
+pyna
+pydantic

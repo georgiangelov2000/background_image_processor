@@ -1,0 +1,76 @@
+# docker compose exec rabbitmq rabbitmqctl delete_queue <queue>
+# docker compose exec rabbitmq rabbitmqctl purge_queue  <queue>
+services:
+
+  api:
+    build:
+      context: ./api
+    container_name: api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+      - ./media:/media 
+    depends_on:
+      - rabbitmq
+
+  resize_worker:
+    build:
+      context: ./resize_worker
+    container_name: resize_worker
+    volumes:
+      - ./resize_worker:/app
+      - ./media:/media
+    depends_on:
+      - rabbitmq
+
+  watermark_worker:
+    build:
+      context: ./watermark_worker
+    container_name: watermark_worker
+    volumes:
+      - ./watermark_worker:/app
+      - ./media:/media
+    depends_on:
+      - rabbitmq
+
+  finish_worker:
+    build:
+      context: ./finish_worker
+    container_name: finish_worker
+    volumes:
+      - ./finish_worker:/app
+      - ./media:/media
+    depends_on:
+      - rabbitmq
+
+  notify_worker:
+    build:
+      context: ./notify_worker
+    container_name: notify_worker
+    volumes:
+      - ./notify_worker:/app
+      - ./media:/media
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"      # RabbitMQ messaging port
+      - "15672:15672"    # Web Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+
+
+volumes:
+  rabbitmq_data:
+
+# curl -X POST http://localhost:8000/send-job/ \
+#      -F "image_name=/home/georgi/Desktop/27ffdc-1.png" \
+#      -F "job_type=resize"
