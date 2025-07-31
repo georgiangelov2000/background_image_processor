@@ -5,3 +5,4 @@ python-multipart
 psutil
 pyna
 pydantic
+python-dotenv
